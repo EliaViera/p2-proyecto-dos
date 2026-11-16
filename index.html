@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10152b">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>P2 — Proyecto Dos</title>
+<style>
+:root{color-scheme:dark;--bg:#10152b;--panel:#1c2444;--gold:#ffd45a;--blue:#54a8ff;--pink:#ff6b9b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#28345f,var(--bg) 65%);color:#fff;font-family:system-ui,sans-serif;min-height:100vh;padding:20px}
+main{max-width:680px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.logo{font-size:30px;font-weight:950;letter-spacing:2px}.xp{background:#26345d;border:1px solid #52669b;border-radius:999px;padding:9px 14px;color:var(--gold);font-weight:800}
+h1{font-size:clamp(28px,7vw,42px);margin:22px 0 6px}p{color:#c7d0ee;line-height:1.45}.panel{background:#1b2342;border:1px solid #3d4b79;border-radius:20px;padding:18px;margin:16px 0;box-shadow:0 12px 30px #0004}
+.mission{display:flex;align-items:center;gap:14px}.num{font-size:26px;background:#2e3b68;border-radius:14px;padding:12px}.mission h3{margin:0 0 4px}.mission p{margin:0;font-size:14px}.done{margin-left:auto;background:#2d8b68;color:white;border:0;border-radius:12px;padding:11px 13px;font-weight:800}
+button{font:inherit;cursor:pointer}.primary{background:var(--gold);color:#20243a;border:0;border-radius:14px;padding:13px 18px;font-weight:900;width:100%;margin-top:12px}.game{height:230px;position:relative;overflow:hidden;background:linear-gradient(#1c3157,#15213e);border-radius:16px;border:1px solid #51628e}.ground{position:absolute;bottom:0;height:25px;background:#3a936e;width:100%}.player{position:absolute;bottom:25px;left:30px;width:28px;height:34px;background:var(--pink);border:3px solid white;border-radius:8px;box-shadow:0 0 16px #ff6b9b}.obstacle{position:absolute;bottom:25px;right:45px;width:24px;height:30px;background:#ffb74d;border-radius:5px}.controls{display:flex;gap:10px;margin-top:10px}.controls button{flex:1;border:1px solid #6576a9;background:#29365e;color:white;padding:12px;border-radius:12px;font-weight:800}.small{font-size:12px;color:#9eadd7;text-align:center}
+</style>
+</head>
+<body><main>
+<div class="top"><div class="logo">🎮 P2 <span style="color:var(--gold)">PROYECTO DOS</span></div><div class="xp" id="xp">⭐ 0 XP</div></div>
+<h1>Recuperá el movimiento.</h1><p>Cada misión es un paso. Sumá experiencia y avanzá a tu ritmo.</p>
+<section class="panel"><h2>🗺️ Tus misiones</h2><div id="missions"></div></section>
+<section class="panel"><h2>🕹️ Mini desafío</h2><p>Mové al personaje y saltá el obstáculo. ¡Un pequeño paso cuenta!</p>
+<div class="game" id="game"><div class="player" id="player"></div><div class="obstacle" id="obstacle"></div><div class="ground"></div></div>
+<div class="controls"><button id="left">◀ Mover</button><button id="jump">⬆ Saltar</button><button id="right">Mover ▶</button></div><p class="small" id="gameMsg">Usá los botones para jugar.</p></section>
+</main>
+<script>
+const tasks=[["🥣","Desayunar bien","Arrancá el día con algo que te dé energía."],["💪","Entrenar","Aunque sea una sesión corta, cuenta."],["📈","Trading","Prepará tu ventana de mercado con calma."],["🍲","Preparar comida","Dejá algo pronto para no improvisar."],["🏠","Avanzar con el alquiler","Un arreglo o una tarea concreta."]];
+let state=JSON.parse(localStorage.getItem("p2state")||'{"xp":0,"done":[]}');
+function save(){localStorage.setItem("p2state",JSON.stringify(state));render()}
+function render(){document.getElementById("xp").textContent="⭐ "+state.xp+" XP";document.getElementById("missions").innerHTML=tasks.map((t,i)=>`<div class="panel mission"><div class="num">${t[0]}</div><div><h3>Nivel ${i+1}: ${t[1]}</h3><p>${t[2]}</p></div><button class="done" onclick="complete(${i})">${state.done.includes(i)?"✓":"Hecho"}</button></div>`).join("")}
+function complete(i){if(state.done.includes(i))return;state.done.push(i);state.xp+=100;save()}
+let x=30,jumping=false;const player=document.getElementById("player");
+function move(d){x=Math.max(0,Math.min(550,x+d));player.style.left=x+"px"}
+function jump(){if(jumping)return;jumping=true;player.style.transition="bottom .25s";player.style.bottom="105px";setTimeout(()=>{player.style.bottom="25px";setTimeout(()=>{jumping=false;player.style.transition=""},260)},260)}
+document.getElementById("left").onclick=()=>move(-22);document.getElementById("right").onclick=()=>move(22);document.getElementById("jump").onclick=jump;
+document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")move(-18);if(e.key==="ArrowRight")move(18);if(e.key===" "||e.key==="ArrowUp")jump()});
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+render();
+</script></body></html>
